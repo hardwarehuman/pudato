@@ -2,7 +2,7 @@
 
 A modular, open-source platform for data operations with public sector data. Built with service abstractions enabling local development with AWS mocks and production deployment flexibility.
 
-The organizing intention is to create a platform optimized for the sort of analyst-led data engineering crucial to acheiving speed, flexibility, and maintainability when working with the sort of [incorrigible data common in public-sector contexts](https://adhoc.team/2022/07/12/gaining-reliable-insights-with-incorrigible-data/). Though the MVP targets AWS services, the modular nature provides easy adaptability to almost any existing cloud-based infrastructure.
+The organizing intention is to create a platform optimized for the sort of analyst-led data engineering crucial to acheiving speed, flexibility, and maintainability when working with the sort of [incorrigible data common in public-sector contexts](https://adhoc.team/2022/07/12/gaining-reliable-insights-with-incorrigible-data/). A key design principle is the separation of *platform infrastructure* from *data logic*: dbt models and SQL transforms live in a configurable external repository that data analysts iterate at their own operational cadence, independent of platform or other infrastructure deployments. Though the MVP targets AWS services, the modular nature provides easy adaptability to almost any existing cloud-based infrastructure.
 
 ## Project Status
 
@@ -59,6 +59,8 @@ Each handler is a "translator" that:
 
 **Key benefit**: Swap backends by changing Terraform config + providing alternative backend module.
 
+**External Logic Repo**: The Transform handler can fetch data logic (dbt models, SQL) from a configurable git repository at runtime. This decouples platform releases from data logic updates, enabling analysts to iterate on transforms via standard git workflows while the platform tracks each execution's exact logic version (commit hash).
+
 ## Quick Start
 
 ### Prerequisites
@@ -110,7 +112,7 @@ pudato/
 │   ├── protocol/messages.py    # Command, Result, Event
 │   ├── messaging/              # SNS publisher, SQS consumer
 │   ├── handlers/               # Storage, Query, Transform, Table, Catalog, Registry
-│   ├── backends/               # S3, DuckDB, dbt, PostgreSQL implementations
+│   ├── backends/               # S3, DuckDB, dbt, PostgreSQL, Logic Repo implementations
 │   └── runtime/                # Lambda entry point, local runner
 │
 ├── dbt/                        # Sample dbt project
@@ -180,6 +182,7 @@ event = Event(
 | **Storage** | S3 (LocalStack) | Data lake |
 | **Query Engine** | DuckDB (local) / Athena (AWS) | SQL queries |
 | **Transformations** | dbt-core | SQL transforms, lineage |
+| **Logic Repo** | Git (external repo) | Fetch/sync external data logic, version tracking |
 | **Registry** | PostgreSQL | Job/step tracking, lineage |
 | **Orchestration** | Apache Airflow | DAG scheduling (Phase 5) |
 | **IaC** | Terraform | Infrastructure management |
