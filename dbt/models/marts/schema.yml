@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: dept_budget_summary
+    description: "Department budget summary with spending analysis"
+    columns:
+      - name: department_id
+        description: "Primary key"
+        data_tests:
+          - unique
+          - not_null
+      - name: department_name
+        description: "Name of the department"
+      - name: budget_amount
+        description: "Annual budget allocation"
+      - name: total_spent
+        description: "Total amount spent"
+      - name: budget_remaining
+        description: "Budget minus spent"
+      - name: percent_spent
+        description: "Percentage of budget spent"
+      - name: _pudato_logic_version
+        description: "Git commit hash of data logic at execution time"
+      - name: _pudato_execution_id
+        description: "Pudato execution ID for tracing"
+      - name: _processed_at
+        description: "Timestamp when this row was processed"

@@ -1,0 +1,54 @@
+services:
+  localstack:
+    image: localstack/localstack:3.0
+    container_name: pudato-localstack
+    ports:
+      - "4566:4566"            # LocalStack Gateway
+      - "4510-4559:4510-4559"  # External services port range
+    environment:
+      - DEBUG=1
+      - SERVICES=s3,sqs,sns,lambda,dynamodb,events
+      - AWS_DEFAULT_REGION=us-east-1
+      - LAMBDA_EXECUTOR=docker
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "./data/localstack:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pudato-network
+
+  # PostgreSQL for Airflow metadata and Job Registry
+  postgres:
+    image: postgres:15-alpine
+    container_name: pudato-postgres
+    environment:
+      POSTGRES_USER: pudato
+      POSTGRES_PASSWORD: pudato
+      POSTGRES_DB: pudato
+    ports:
+      - "5433:5432"  # Use 5433 to avoid conflicts with host postgres
+    volumes:
+      - "./data/postgres:/var/lib/postgresql/data"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pudato"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pudato-network
+    profiles:
+      - airflow  # Start with --profile airflow
+      - postgres # Start with --profile postgres (for registry testing)
+
+networks:
+  pudato-network:
+    driver: bridge
+
+volumes:
+  localstack-data:
+  postgres-data:

@@ -1,0 +1,26 @@
+# Pudato Sample dbt Project
+# This is a minimal project for exploring dbt integration with Pudato.
+# In production, data logic would live in a separate repository.
+
+name: 'pudato_sample'
+version: '0.1.0'
+config-version: 2
+
+profile: 'pudato'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Variables that Pudato can pass at runtime
+vars:
+  # Commit hash of the data logic repo (passed by Pudato)
+  pudato_logic_version: "{{ env_var('PUDATO_LOGIC_VERSION', 'unknown') }}"
+  # Execution ID for tracing
+  pudato_execution_id: "{{ env_var('PUDATO_EXECUTION_ID', 'unknown') }}"

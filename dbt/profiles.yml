@@ -1,0 +1,10 @@
+# dbt profiles for Pudato
+# DuckDB for local development, can add other targets for production
+
+pudato:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('PUDATO_DUCKDB_PATH', 'pudato.duckdb') }}"
+      threads: 4

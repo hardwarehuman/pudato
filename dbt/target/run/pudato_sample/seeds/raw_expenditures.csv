@@ -1,0 +1,11 @@
+
+    
+    
+    truncate table "pudato"."main"."raw_expenditures";
+    -- dbt seed --
+    
+          COPY "pudato"."main"."raw_expenditures" FROM '/Users/Nato/dev/pudato/dbt/seeds/raw_expenditures.csv' (FORMAT CSV, HEADER TRUE, DELIMITER ',')
+        
+
+;
+  

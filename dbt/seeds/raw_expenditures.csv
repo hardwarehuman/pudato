@@ -1,0 +1,9 @@
+expenditure_id,department_id,amount,category,expenditure_date
+1,1,150000,Infrastructure,2024-01-15
+2,1,75000,Equipment,2024-02-01
+3,2,50000,Maintenance,2024-01-20
+4,3,200000,Personnel,2024-01-01
+5,3,100000,Equipment,2024-02-15
+6,4,80000,Supplies,2024-01-10
+7,5,500000,Programs,2024-01-05
+8,5,250000,Personnel,2024-02-01
