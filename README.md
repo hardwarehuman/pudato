@@ -205,6 +205,9 @@ mypy src
 - [Registry Schema](docs/schema.md) - Job/lineage database schema
 - [Terraform](terraform/README.md) - Infrastructure setup
 
+## Pronunciation
+pu-day-to, pu-dah-to, it's all the same.
+
 ## License
 
 MIT
