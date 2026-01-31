@@ -2,6 +2,8 @@
 
 A modular, open-source platform for data operations with public sector data. Built with service abstractions enabling local development with AWS mocks and production deployment flexibility.
 
+The organizing intention is to create a platform optimized for the sort of analyst-led data engineering crucial to acheiving speed, flexibility, and maintainability when working with the sort [incorrigible data common in public-sector contexts](https://adhoc.team/2022/07/12/gaining-reliable-insights-with-incorrigible-data/). Though the MVP targets AWS services, the modular nature provides easy adaptability to almost any existing cloud-based infrastructure.
+
 ## Project Status
 
 **Current Phase**: Phase 4 In Progress (Data Logic Repo & Lineage Wiring)
