@@ -83,7 +83,11 @@ result = Result.success(
 )
 ```
 
-See `docs/schema.md` for how lineage is persisted.
+**Automatic job/step propagation**: The `BaseHandler` class automatically copies `job_id` and `step_id` from Command to Result. When using `self._success()`, `self._error()`, or `self._pending()`, these fields are propagated without explicit handling.
+
+**Lineage persistence**: When a Result has a `step_id`, the results consumer (`src/pudato/runtime/results_consumer.py`) persists the lineage data to the registry. See `docs/messaging.md` for the results consumer flow.
+
+See `docs/schema.md` for the registry database schema.
 
 ## Adding a New Handler
 

@@ -4,15 +4,24 @@ These tests demonstrate the complete data pipeline:
 1. Storage: Upload raw data (CSV seed files already in dbt/seeds/)
 2. Transform: Run dbt to process data with version tracking
 3. Query: Execute SQL against the transformed data
+
+Also tests the complete lineage tracking flow:
+1. Create job and steps in registry
+2. Execute commands with job_id/step_id
+3. Process results through results consumer
+4. Query lineage from registry
 """
 
 from pathlib import Path
 
 import pytest
 
+from pudato.backends.registry import InMemoryRegistryBackend
 from pudato.handlers.query import create_duckdb_handler
+from pudato.handlers.registry import RegistryHandler
 from pudato.handlers.transform import TransformHandler
 from pudato.protocol import Command
+from pudato.runtime.results_consumer import process_result
 
 
 @pytest.fixture
@@ -258,3 +267,435 @@ class TestEndToEndFlow:
 
         assert row[version_idx] == "v2.0.0"
         assert row[exec_idx] == "run-002"
+
+
+@pytest.mark.integration
+class TestLineageTrackingFlow:
+    """Test complete lineage tracking: job → steps → results → lineage queries.
+
+    This simulates the full orchestration flow:
+    1. Orchestrator creates a job with planned steps
+    2. Commands are sent with job_id/step_id
+    3. Handlers execute and produce Results with lineage
+    4. Results consumer persists lineage to registry
+    5. Lineage is queryable for data governance
+    """
+
+    def test_full_lineage_flow_transform_pipeline(self, dbt_project_dir: Path):
+        """Test complete lineage tracking for a dbt transform pipeline.
+
+        Simulates an Airflow DAG that:
+        1. Creates a job for "daily-transform" pipeline
+        2. Creates steps for seed, staging, and mart models
+        3. Executes each step with proper job_id/step_id
+        4. Results consumer persists lineage
+        5. Lineage queries show data flow
+        """
+        # --- Setup: Create registry ---
+        registry = RegistryHandler(backend=InMemoryRegistryBackend())
+
+        # --- Step 1: Orchestrator creates job ---
+        create_job_result = registry.handle(
+            Command(
+                type="registry",
+                action="create_job",
+                payload={
+                    "pipeline": "daily-transform",
+                    "environment": "test",
+                    "logic_version": "abc123",
+                    "parameters": {"date": "2024-01-15"},
+                },
+            )
+        )
+        assert create_job_result.status == "success"
+        job_id = create_job_result.data["job_id"]
+
+        # --- Step 2: Orchestrator creates planned steps ---
+        steps = {}
+
+        # Step: dbt seed
+        seed_step_result = registry.handle(
+            Command(
+                type="registry",
+                action="add_step",
+                payload={
+                    "job_id": job_id,
+                    "step_name": "dbt-seed",
+                    "handler_type": "transform",
+                    "action": "seed",
+                },
+            )
+        )
+        assert seed_step_result.status == "success"
+        steps["seed"] = seed_step_result.data["step_id"]
+
+        # Step: dbt run staging
+        staging_step_result = registry.handle(
+            Command(
+                type="registry",
+                action="add_step",
+                payload={
+                    "job_id": job_id,
+                    "step_name": "dbt-run-staging",
+                    "handler_type": "transform",
+                    "action": "run",
+                },
+            )
+        )
+        assert staging_step_result.status == "success"
+        steps["staging"] = staging_step_result.data["step_id"]
+
+        # Step: dbt run marts
+        marts_step_result = registry.handle(
+            Command(
+                type="registry",
+                action="add_step",
+                payload={
+                    "job_id": job_id,
+                    "step_name": "dbt-run-marts",
+                    "handler_type": "transform",
+                    "action": "run",
+                },
+            )
+        )
+        assert marts_step_result.status == "success"
+        steps["marts"] = marts_step_result.data["step_id"]
+
+        # --- Step 3: Execute handlers with job_id/step_id ---
+        transform_handler = TransformHandler(
+            project_dir=dbt_project_dir,
+            profiles_dir=dbt_project_dir,
+        )
+
+        # Execute seed step
+        seed_result = transform_handler.handle(
+            Command(
+                type="transform",
+                action="seed",
+                payload={},
+                job_id=job_id,
+                step_id=steps["seed"],
+            )
+        )
+        assert seed_result.status == "success"
+        assert seed_result.job_id == job_id
+        assert seed_result.step_id == steps["seed"]
+
+        # Execute staging step
+        staging_result = transform_handler.handle(
+            Command(
+                type="transform",
+                action="run",
+                payload={"select": "stg_departments stg_budget_items"},
+                job_id=job_id,
+                step_id=steps["staging"],
+            )
+        )
+        assert staging_result.status == "success"
+        assert staging_result.step_id == steps["staging"]
+
+        # Execute marts step
+        marts_result = transform_handler.handle(
+            Command(
+                type="transform",
+                action="run",
+                payload={"select": "dept_budget_summary"},
+                job_id=job_id,
+                step_id=steps["marts"],
+            )
+        )
+        assert marts_result.status == "success"
+        assert marts_result.step_id == steps["marts"]
+
+        # --- Step 4: Results consumer persists lineage ---
+        # In production, results would flow through SNS → SQS → results consumer
+        # Here we call process_result directly to simulate that flow
+
+        seed_outcome = process_result(seed_result, registry)
+        assert seed_outcome["status"] == "success"
+
+        staging_outcome = process_result(staging_result, registry)
+        assert staging_outcome["status"] == "success"
+
+        marts_outcome = process_result(marts_result, registry)
+        assert marts_outcome["status"] == "success"
+
+        # --- Step 5: Verify lineage is persisted and queryable ---
+
+        # Check seed step has execution record
+        seed_step = registry.handle(
+            Command(
+                type="registry",
+                action="get_step",
+                payload={"step_id": steps["seed"]},
+            )
+        )
+        assert seed_step.data["status"] == "success"
+        assert len(seed_step.data["executions"]) > 0
+        assert seed_step.data["executions"][0]["execution_type"] == "dbt"
+
+        # Check marts step completed
+        marts_step = registry.handle(
+            Command(
+                type="registry",
+                action="get_step",
+                payload={"step_id": steps["marts"]},
+            )
+        )
+        assert marts_step.data["status"] == "success"
+        assert marts_step.data["duration_ms"] > 0
+
+        # Query all steps for the job
+        job_steps = registry.handle(
+            Command(
+                type="registry",
+                action="get_job_steps",
+                payload={"job_id": job_id},
+            )
+        )
+        assert job_steps.data["count"] == 3
+        assert all(s["status"] == "success" for s in job_steps.data["steps"])
+
+    def test_lineage_with_query_handler(self, dbt_project_dir: Path):
+        """Test lineage tracking for query handler operations.
+
+        Shows how SQL queries track inputs (tables read) and executions.
+        """
+        # Setup
+        registry = RegistryHandler(backend=InMemoryRegistryBackend())
+
+        # Ensure data exists
+        transform_handler = TransformHandler(
+            project_dir=dbt_project_dir,
+            profiles_dir=dbt_project_dir,
+        )
+        transform_handler.handle(
+            Command(type="transform", action="build", payload={})
+        )
+
+        # Create job and step
+        job_result = registry.handle(
+            Command(
+                type="registry",
+                action="create_job",
+                payload={"pipeline": "ad-hoc-query", "environment": "test"},
+            )
+        )
+        job_id = job_result.data["job_id"]
+
+        step_result = registry.handle(
+            Command(
+                type="registry",
+                action="add_step",
+                payload={
+                    "job_id": job_id,
+                    "step_name": "aggregate-budgets",
+                    "handler_type": "query",
+                    "action": "execute",
+                },
+            )
+        )
+        step_id = step_result.data["step_id"]
+
+        # Execute query with lineage tracking
+        query_handler = create_duckdb_handler(
+            database_path=dbt_project_dir / "pudato.duckdb",
+            read_only=True,
+        )
+
+        query_result = query_handler.handle(
+            Command(
+                type="query",
+                action="execute",
+                payload={
+                    "sql": """
+                        SELECT department_name, budget_amount
+                        FROM main.dept_budget_summary
+                        WHERE budget_amount > 50000
+                    """
+                },
+                job_id=job_id,
+                step_id=step_id,
+            )
+        )
+
+        assert query_result.status == "success"
+        assert query_result.job_id == job_id
+        assert query_result.step_id == step_id
+
+        # Query handler should track SQL execution
+        assert len(query_result.executions) > 0
+        assert query_result.executions[0].execution_type == "sql"
+
+        # Process through results consumer
+        outcome = process_result(query_result, registry)
+        assert outcome["status"] == "success"
+
+        # Verify step was updated with execution details
+        step_data = registry.handle(
+            Command(
+                type="registry",
+                action="get_step",
+                payload={"step_id": step_id},
+            )
+        )
+
+        assert step_data.data["status"] == "success"
+        assert len(step_data.data["executions"]) > 0
+        assert "SELECT" in step_data.data["executions"][0]["details"]["statements"][0]
+
+    def test_error_tracking_in_lineage(self, dbt_project_dir: Path):
+        """Test that failed steps are tracked with error information."""
+        registry = RegistryHandler(backend=InMemoryRegistryBackend())
+
+        # Create job and step
+        job_result = registry.handle(
+            Command(
+                type="registry",
+                action="create_job",
+                payload={"pipeline": "failing-pipeline", "environment": "test"},
+            )
+        )
+        job_id = job_result.data["job_id"]
+
+        step_result = registry.handle(
+            Command(
+                type="registry",
+                action="add_step",
+                payload={
+                    "job_id": job_id,
+                    "step_name": "bad-query",
+                    "handler_type": "query",
+                    "action": "execute",
+                },
+            )
+        )
+        step_id = step_result.data["step_id"]
+
+        # Execute a failing query
+        query_handler = create_duckdb_handler(
+            database_path=dbt_project_dir / "pudato.duckdb",
+            read_only=True,
+        )
+
+        query_result = query_handler.handle(
+            Command(
+                type="query",
+                action="execute",
+                payload={"sql": "SELECT * FROM nonexistent_table_xyz"},
+                job_id=job_id,
+                step_id=step_id,
+            )
+        )
+
+        assert query_result.status == "error"
+        assert query_result.job_id == job_id
+        assert query_result.step_id == step_id
+        assert len(query_result.errors) > 0
+
+        # Process through results consumer
+        outcome = process_result(query_result, registry)
+        assert outcome["status"] == "success"  # Consumer succeeded
+
+        # Verify step shows failure
+        step_data = registry.handle(
+            Command(
+                type="registry",
+                action="get_step",
+                payload={"step_id": step_id},
+            )
+        )
+
+        assert step_data.data["status"] == "failed"
+        assert "nonexistent_table_xyz" in step_data.data["error"]
+
+    def test_multi_step_job_summary(self, dbt_project_dir: Path):
+        """Test querying job summary after all steps complete."""
+        registry = RegistryHandler(backend=InMemoryRegistryBackend())
+
+        # Create job
+        job_result = registry.handle(
+            Command(
+                type="registry",
+                action="create_job",
+                payload={
+                    "pipeline": "multi-step-demo",
+                    "environment": "test",
+                    "logic_version": "v1.0.0",
+                },
+            )
+        )
+        job_id = job_result.data["job_id"]
+
+        # Create multiple steps
+        step_names = ["extract", "transform", "load"]
+        step_ids = []
+
+        for name in step_names:
+            result = registry.handle(
+                Command(
+                    type="registry",
+                    action="add_step",
+                    payload={
+                        "job_id": job_id,
+                        "step_name": name,
+                        "handler_type": "transform",
+                        "action": "run",
+                    },
+                )
+            )
+            step_ids.append(result.data["step_id"])
+
+        # Simulate processing results for each step
+        transform_handler = TransformHandler(
+            project_dir=dbt_project_dir,
+            profiles_dir=dbt_project_dir,
+        )
+
+        for i, step_id in enumerate(step_ids):
+            # Use seed for simplicity - just need valid results
+            result = transform_handler.handle(
+                Command(
+                    type="transform",
+                    action="seed",
+                    payload={},
+                    job_id=job_id,
+                    step_id=step_id,
+                )
+            )
+            process_result(result, registry)
+
+        # Update job as completed
+        registry.handle(
+            Command(
+                type="registry",
+                action="update_job",
+                payload={"job_id": job_id, "status": "success"},
+            )
+        )
+
+        # Query job summary
+        job_data = registry.handle(
+            Command(
+                type="registry",
+                action="get_job",
+                payload={"job_id": job_id},
+            )
+        )
+
+        assert job_data.data["status"] == "success"
+        assert job_data.data["pipeline"] == "multi-step-demo"
+        assert job_data.data["logic_version"] == "v1.0.0"
+
+        # Query all steps
+        steps_data = registry.handle(
+            Command(
+                type="registry",
+                action="get_job_steps",
+                payload={"job_id": job_id},
+            )
+        )
+
+        assert steps_data.data["count"] == 3
+        completed_steps = [s for s in steps_data.data["steps"] if s["status"] == "success"]
+        assert len(completed_steps) == 3

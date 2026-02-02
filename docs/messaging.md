@@ -30,9 +30,13 @@ command = Command(
     action="put_object",               # Action to perform
     payload={"container": "data-lake", "path": "data.parquet", "data": "..."},
     correlation_id="req-123",          # For tracing
+    job_id="job-456",                  # Optional: links to registry job for lineage
+    step_id="step-789",                # Optional: links to registry step for lineage
     metadata={"source": "ingestion"},  # Optional context
 )
 ```
+
+**Lineage tracking**: When `job_id` and `step_id` are provided, the results consumer will persist the Result's lineage data (inputs, outputs, executions) to the registry.
 
 ### Result
 
@@ -128,6 +132,43 @@ The local runner (`src/pudato/runtime/local_runner.py`) polls SQS and invokes ha
 # Run local handler
 python -m pudato.runtime.local_runner --handler storage
 ```
+
+## Results Consumer
+
+The results consumer (`src/pudato/runtime/results_consumer.py`) subscribes to the results topic and persists lineage to the registry.
+
+**Flow:**
+```
+Handler produces Result (with job_id, step_id, inputs, outputs, executions)
+    ↓
+Result published to pudato-results SNS topic
+    ↓
+Results SQS queue receives message
+    ↓
+Results consumer calls registry update_step
+    ↓
+Lineage queryable via get_lineage
+```
+
+**Usage:**
+```python
+from pudato.runtime.results_consumer import handle, process_result
+
+# Lambda entry point
+response = handle(sqs_event)
+
+# Or process a single result directly
+from pudato.handlers.registry import RegistryHandler
+outcome = process_result(result, registry_handler)
+```
+
+**Local development:**
+```bash
+# Run results consumer locally (polls SQS)
+python -c "from pudato.runtime.results_consumer import run_local; run_local()"
+```
+
+**Note:** Results without `step_id` are skipped (not part of a tracked job).
 
 ## Correlation IDs
 

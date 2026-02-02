@@ -54,6 +54,12 @@ class Settings(BaseSettings):
         description="Events SNS topic ARN",
     )
 
+    # SQS Queues
+    results_queue_url: str | None = Field(
+        default=None,
+        description="Results SQS queue URL for the results consumer",
+    )
+
     # Storage
     data_container: str = Field(
         default="pudato-data-lake",

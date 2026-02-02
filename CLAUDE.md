@@ -5,7 +5,7 @@
 Pudato is a modular platform for public sector data operations. Uses AWS services (LocalStack locally) with SNS/SQS as the message fabric. Lambda handlers translate messages to service-specific operations (S3, DuckDB, dbt).
 
 **Current Phase**: 4 (Data Logic Repo & Lineage Wiring)
-**Tests**: 110 passing
+**Tests**: 143 passing
 
 ## Which Doc to Read
 
@@ -96,4 +96,6 @@ At the **start of every session**, read `SESSION.md` for context from the previo
 3. **Use `container`/`path`** not `bucket`/`key` in handler interfaces
 4. **Use `correlation_id`** for tracing across services
 5. **All handlers publish to results topic**
-6. **Python 3.11-3.13** (not 3.14 — dbt/Airflow compatibility)
+6. **Use `job_id`/`step_id`** for lineage tracking — pre-create steps in registry, pass IDs in commands
+7. **Python 3.11-3.13** (not 3.14 — dbt/Airflow compatibility)
+8. **Single-line commit messages** — keep commit messages concise and on one line

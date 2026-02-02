@@ -83,6 +83,8 @@ class BaseHandler(ABC):
                     data=result.data,
                     errors=result.errors,
                     correlation_id=result.correlation_id,
+                    job_id=result.job_id,
+                    step_id=result.step_id,
                     duration_ms=duration_ms,
                     handler=result.handler,
                     inputs=result.inputs,
@@ -128,6 +130,8 @@ class BaseHandler(ABC):
         """Create a success result for a command."""
         return Result.success(
             correlation_id=command.correlation_id,
+            job_id=command.job_id,
+            step_id=command.step_id,
             data=data,
             duration_ms=duration_ms,
             handler=self.service_type,
@@ -145,6 +149,8 @@ class BaseHandler(ABC):
         """Create an error result for a command."""
         return Result.error(
             correlation_id=command.correlation_id,
+            job_id=command.job_id,
+            step_id=command.step_id,
             errors=errors,
             duration_ms=duration_ms,
             handler=self.service_type,
@@ -158,6 +164,8 @@ class BaseHandler(ABC):
         """Create a pending result for async operations."""
         return Result.pending(
             correlation_id=command.correlation_id,
+            job_id=command.job_id,
+            step_id=command.step_id,
             data=data,
             handler=self.service_type,
         )

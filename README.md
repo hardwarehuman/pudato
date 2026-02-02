@@ -23,13 +23,15 @@ The organizing intention is to create a platform optimized for the sort of analy
 | Lambda Runtime | ✅ | Entry point + local runner |
 | LocalStack Setup | ✅ | Docker Compose with SNS, SQS, S3, PostgreSQL |
 | Terraform (local) | ✅ | Topics, queues, subscriptions |
-| Integration Tests | ✅ | 110 passing tests |
+| Results Consumer | ✅ | Persists lineage from Results to registry |
+| Integration Tests | ✅ | 143 passing tests |
 
 ### What's Next (Phase 4 Remaining)
 
-- [ ] Wire handler Results into registry (persist lineage)
-- [ ] Cross-handler lineage (connect steps into traceable Jobs)
+- [x] Wire handler Results into registry (persist lineage)
+- [x] Cross-handler lineage (connect steps into traceable Jobs)
 - [ ] dbt manifest parsing for table-level I/O tracking
+- [ ] Terraform: Results SQS queue subscribed to results SNS topic
 
 ## Architecture
 
@@ -124,7 +126,7 @@ pudato/
 │   ├── environments/local/     # LocalStack configuration
 │   └── modules/messaging/      # SNS topics, SQS queues
 │
-├── tests/integration/          # Integration tests (110 passing)
+├── tests/integration/          # Integration tests (143 passing)
 ├── docker-compose.yml          # LocalStack + PostgreSQL
 └── pyproject.toml              # Python package config
 ```
@@ -141,6 +143,8 @@ command = Command(
     action="put_object",
     payload={"container": "data-lake", "path": "data.parquet"},
     correlation_id="req-123",
+    job_id="job-456",      # Optional: for lineage tracking
+    step_id="step-789",    # Optional: for lineage tracking
     metadata={"source": "ingestion"},
 )
 ```
@@ -148,11 +152,13 @@ command = Command(
 ### Result
 
 ```python
-from pudato.protocol import Result
+from pudato.protocol import Result, DataReference
 
-# Success with lineage
+# Success with lineage (job_id/step_id copied from command automatically)
 result = Result.success(
     correlation_id="req-123",
+    job_id="job-456",
+    step_id="step-789",
     data={"etag": "abc123"},
     duration_ms=45,
     inputs=[DataReference(ref_type="file", location="s3://bucket/input.csv")],

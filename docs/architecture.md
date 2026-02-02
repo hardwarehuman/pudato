@@ -107,6 +107,8 @@ class Command(BaseModel):
     action: str            # e.g., "put_object", "execute_sql", "run_model"
     payload: dict          # Action-specific parameters
     correlation_id: str    # For tracing/lineage
+    job_id: str | None     # For lineage: links to registry job
+    step_id: str | None    # For lineage: links to registry step
     metadata: dict         # Optional context (user, source, etc.)
 
 class Result(BaseModel):
@@ -115,6 +117,8 @@ class Result(BaseModel):
     data: dict | None      # Result payload
     errors: list[str]      # Error messages if any
     correlation_id: str    # Matches originating command
+    job_id: str | None     # Copied from command for lineage
+    step_id: str | None    # Copied from command for lineage
     duration_ms: int       # Execution time
 
 class Event(BaseModel):
@@ -268,11 +272,14 @@ pudato/
 - [x] Lineage data structures: DataReference, ExecutionRecord on Result objects (`src/pudato/protocol/messages.py`)
 - [x] dbt project with sample models and version tracking
 - [x] Lambda handler integration for all handler types
+- [x] External data logic repo integration (clone/fetch repo, extract commit hash as logic_version)
+- [x] Explicit `job_id` and `step_id` on Command/Result for lineage tracking
+- [x] Results consumer (`src/pudato/runtime/results_consumer.py`) - persists lineage from Results to registry
+- [x] Cross-handler lineage (connect steps into Jobs so transform → query chains are traceable)
+- [x] End-to-end lineage tests (143 tests passing)
 
 **Remaining:**
-- [ ] External data logic repo integration (clone/fetch repo, extract commit hash as logic_version)
-- [ ] Wire handler Results into registry (Results are published to SNS but not persisted to registry)
-- [ ] Cross-handler lineage (connect steps into Jobs so transform → query chains are traceable)
+- [ ] Terraform: Results SQS queue subscribed to results SNS topic
 - [ ] dbt manifest parsing for actual table-level I/O tracking
 
 ### Phase 5: Orchestration & Production

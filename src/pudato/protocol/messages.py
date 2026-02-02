@@ -117,6 +117,14 @@ class Command(BaseModel):
         default_factory=lambda: str(uuid.uuid4()),
         description="Unique ID for tracing/lineage across services",
     )
+    job_id: str | None = Field(
+        default=None,
+        description="Job ID if this command is part of a tracked job",
+    )
+    step_id: str | None = Field(
+        default=None,
+        description="Step ID if this command corresponds to a pre-created step",
+    )
     metadata: dict[str, Any] = Field(
         default_factory=dict,
         description="Optional context: user, source, timestamps, etc.",
@@ -168,6 +176,14 @@ class Result(BaseModel):
         description="Error messages if status is 'error'",
     )
     correlation_id: str = Field(description="Matches the originating command's correlation_id")
+    job_id: str | None = Field(
+        default=None,
+        description="Job ID if this result is part of a tracked job",
+    )
+    step_id: str | None = Field(
+        default=None,
+        description="Step ID if this result corresponds to a pre-created step",
+    )
     duration_ms: int = Field(
         default=0,
         description="Execution time in milliseconds",
@@ -213,12 +229,16 @@ class Result(BaseModel):
         inputs: list[DataReference] | None = None,
         outputs: list[DataReference] | None = None,
         executions: list[ExecutionRecord] | None = None,
+        job_id: str | None = None,
+        step_id: str | None = None,
     ) -> Result:
         """Factory for successful result."""
         return cls(
             status="success",
             data=data,
             correlation_id=correlation_id,
+            job_id=job_id,
+            step_id=step_id,
             duration_ms=duration_ms,
             handler=handler,
             inputs=inputs or [],
@@ -233,12 +253,16 @@ class Result(BaseModel):
         errors: list[str],
         duration_ms: int = 0,
         handler: str | None = None,
+        job_id: str | None = None,
+        step_id: str | None = None,
     ) -> Result:
         """Factory for error result."""
         return cls(
             status="error",
             errors=errors,
             correlation_id=correlation_id,
+            job_id=job_id,
+            step_id=step_id,
             duration_ms=duration_ms,
             handler=handler,
         )
@@ -249,12 +273,16 @@ class Result(BaseModel):
         correlation_id: str,
         data: dict[str, Any] | None = None,
         handler: str | None = None,
+        job_id: str | None = None,
+        step_id: str | None = None,
     ) -> Result:
         """Factory for pending/async result."""
         return cls(
             status="pending",
             data=data,
             correlation_id=correlation_id,
+            job_id=job_id,
+            step_id=step_id,
             handler=handler,
         )
 
