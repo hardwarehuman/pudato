@@ -65,3 +65,13 @@ output "transform_queue_arn" {
   description = "ARN of the transform handler SQS queue"
   value       = aws_sqs_queue.transform_queue.arn
 }
+
+output "results_queue_arn" {
+  description = "ARN of the results consumer SQS queue"
+  value       = aws_sqs_queue.results_queue.arn
+}
+
+output "events_queue_arn" {
+  description = "ARN of the events consumer SQS queue"
+  value       = aws_sqs_queue.events_queue.arn
+}

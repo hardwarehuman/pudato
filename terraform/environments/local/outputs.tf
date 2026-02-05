@@ -39,6 +39,16 @@ output "events_queue_url" {
   value       = module.messaging.events_queue_url
 }
 
+output "results_queue_arn" {
+  description = "ARN of the results consumer SQS queue"
+  value       = module.messaging.results_queue_arn
+}
+
+output "events_queue_arn" {
+  description = "ARN of the events consumer SQS queue"
+  value       = module.messaging.events_queue_arn
+}
+
 # Storage outputs
 output "data_lake_bucket" {
   description = "Name of the data lake S3 bucket"
@@ -64,6 +74,7 @@ output "env_file_content" {
     PUDATO_TRANSFORM_TOPIC_ARN=${module.messaging.transform_topic_arn}
     PUDATO_RESULTS_TOPIC_ARN=${module.messaging.results_topic_arn}
     PUDATO_EVENTS_TOPIC_ARN=${module.messaging.events_topic_arn}
+    PUDATO_RESULTS_QUEUE_URL=${module.messaging.results_queue_url}
     PUDATO_DATA_BUCKET=${aws_s3_bucket.data_lake.id}
     PUDATO_METADATA_TABLE=${aws_dynamodb_table.metadata.id}
   EOT
