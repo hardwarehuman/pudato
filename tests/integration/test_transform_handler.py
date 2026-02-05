@@ -29,7 +29,7 @@ class TestTransformHandler:
     """Test TransformHandler with dbt."""
 
     def test_seed(self, transform_handler: TransformHandler):
-        """Test running dbt seed."""
+        """Test running dbt seed extracts table outputs."""
         command = Command(
             type="transform",
             action="seed",
@@ -44,6 +44,11 @@ class TestTransformHandler:
         assert result.data is not None
         assert result.data["logic_version"] == "test-abc123"
         assert result.data["execution_id"] == "exec-001"
+
+        # Seeds produce outputs (the seed tables)
+        assert len(result.outputs) >= 1
+        output_locations = [o.location for o in result.outputs]
+        assert any("raw_departments" in loc or "raw_expenditures" in loc for loc in output_locations)
 
     def test_run(self, transform_handler: TransformHandler):
         """Test running dbt models."""
@@ -70,7 +75,7 @@ class TestTransformHandler:
         assert "dbt" in result.data["command"]
 
     def test_run_select_model(self, transform_handler: TransformHandler):
-        """Test running a specific model."""
+        """Test running a specific model extracts table-level lineage."""
         # First seed
         seed_command = Command(type="transform", action="seed", payload={})
         transform_handler.handle(seed_command)
@@ -85,6 +90,20 @@ class TestTransformHandler:
         result = transform_handler.handle(command)
 
         assert result.status == "success"
+
+        # Verify outputs contain the model we ran
+        assert len(result.outputs) >= 1
+        output_locations = [o.location for o in result.outputs]
+        assert any("stg_departments" in loc for loc in output_locations)
+
+        # Verify inputs contain upstream dependency (raw_departments seed)
+        assert len(result.inputs) >= 1
+        input_locations = [i.location for i in result.inputs]
+        assert any("raw_departments" in loc for loc in input_locations)
+
+        # All refs should be tables
+        for ref in result.outputs + result.inputs:
+            assert ref.ref_type == "table"
 
     def test_test(self, transform_handler: TransformHandler):
         """Test running dbt tests."""

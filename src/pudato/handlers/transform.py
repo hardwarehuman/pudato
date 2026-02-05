@@ -159,6 +159,8 @@ class TransformHandler(BaseHandler):
                     "output_lines": len(dbt_result.stdout.splitlines()),
                 },
                 executions=[execution],
+                inputs=dbt_result.inputs or None,
+                outputs=dbt_result.outputs or None,
             )
         else:
             # Extract useful error info from stderr

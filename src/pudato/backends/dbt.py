@@ -6,8 +6,12 @@ import os
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import structlog
+
+if TYPE_CHECKING:
+    from pudato.protocol import DataReference
 
 logger = structlog.get_logger()
 
@@ -24,6 +28,9 @@ class DbtResult:
     # Version tracking
     logic_version: str | None = None
     execution_id: str | None = None
+    # Lineage tracking (populated from manifest.json after execution)
+    inputs: list[DataReference] = field(default_factory=list)
+    outputs: list[DataReference] = field(default_factory=list)
 
 
 @dataclass
@@ -196,9 +203,15 @@ class DbtBackend:
             )
 
             success = result.returncode == 0
+            inputs: list[DataReference] = []
+            outputs: list[DataReference] = []
 
             if success:
                 self._log.info("dbt_success", return_code=result.returncode)
+                # Parse lineage from manifest
+                from pudato.backends.dbt_manifest import parse_lineage_from_manifest
+
+                inputs, outputs = parse_lineage_from_manifest(self._config.project_dir)
             else:
                 self._log.error(
                     "dbt_failed",
@@ -214,6 +227,8 @@ class DbtBackend:
                 stderr=result.stderr,
                 logic_version=self._config.logic_version,
                 execution_id=self._config.execution_id,
+                inputs=inputs,
+                outputs=outputs,
             )
 
         except FileNotFoundError:
