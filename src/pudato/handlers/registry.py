@@ -428,7 +428,7 @@ class RegistryHandler(BaseHandler):
         environment = payload.get("environment")
 
         try:
-            result_data: dict = {"location": location}
+            result_data: dict = {"location": location}  # type: ignore[type-arg]
 
             if direction in ("producers", "both"):
                 producers = self._backend.get_lineage_for_output(location, environment)

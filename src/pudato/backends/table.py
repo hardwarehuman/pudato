@@ -322,7 +322,7 @@ class DuckDBTableBackend:
 
             # Get row count
             count_result = conn.execute(f"SELECT COUNT(*) FROM {name}")
-            row_count = count_result.fetchone()[0]
+            row_count = count_result.fetchone()[0]  # type: ignore[index]
 
             return TableInfo(
                 name=table_name,
@@ -347,7 +347,7 @@ class DuckDBTableBackend:
         )
         return None
 
-    def list_snapshots(self, name: str) -> list[Snapshot]:
+    def list_snapshots(self, name: str) -> list[Snapshot]:  # noqa: ARG002
         """List snapshots (empty for DuckDB native tables).
 
         DuckDB native tables don't support snapshots/time travel.

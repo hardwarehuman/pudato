@@ -642,7 +642,7 @@ class TestLineageTrackingFlow:
             profiles_dir=dbt_project_dir,
         )
 
-        for i, step_id in enumerate(step_ids):
+        for i, step_id in enumerate(step_ids):  # noqa: B007
             # Use seed for simplicity - just need valid results
             result = transform_handler.handle(
                 Command(

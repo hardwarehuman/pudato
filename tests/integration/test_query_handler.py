@@ -168,7 +168,7 @@ class TestQueryHandlerWithDbtData:
 
     def test_query_dbt_output(
         self,
-        dbt_database_handler: QueryHandler,
+        dbt_database_handler: QueryHandler,  # noqa: ARG002
         dbt_project_dir: Path,
     ):
         """Test querying data from dbt models.

@@ -58,7 +58,7 @@ class Consumer:
             WaitTimeSeconds=wait_time_seconds,
             MessageAttributeNames=["All"],
         )
-        return response.get("Messages", [])
+        return response.get("Messages", [])  # type: ignore[return-value]
 
     def delete_message(self, queue_url: str, receipt_handle: str) -> None:
         """Delete a message from the queue after processing.

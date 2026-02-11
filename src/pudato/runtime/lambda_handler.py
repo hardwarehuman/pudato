@@ -144,7 +144,7 @@ def _create_registry_handler() -> Any:
     else:
         from pudato.backends.registry import InMemoryRegistryBackend
 
-        backend = InMemoryRegistryBackend()
+        backend = InMemoryRegistryBackend()  # type: ignore[assignment]
 
     return RegistryHandler(backend=backend)
 

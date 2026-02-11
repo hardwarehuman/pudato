@@ -1,6 +1,5 @@
 """Unit tests for protocol dataclasses."""
 
-
 from pudato.protocol import Command, DataReference, ExecutionRecord, Result
 
 
