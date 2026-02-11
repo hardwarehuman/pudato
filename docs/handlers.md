@@ -14,14 +14,14 @@ class Handler(Protocol):
 
 ## Available Handlers
 
-| Handler | Backend(s) | Actions | Source |
-|---------|------------|---------|--------|
-| `StorageHandler` | S3Backend | put_object, get_object, list_objects, delete_object | `handlers/storage.py` |
-| `QueryHandler` | DuckDBBackend | execute_sql | `handlers/query.py` |
-| `TransformHandler` | DbtBackend | run, build, test, seed | `handlers/transform.py` |
-| `TableHandler` | DuckDBTableBackend | create, insert, query | `handlers/table.py` |
-| `CatalogHandler` | InMemory, FileBacked | register, get, list, search | `handlers/catalog.py` |
-| `RegistryHandler` | InMemory, PostgreSQL | create_job, update_job, add_step, query_lineage | `handlers/registry.py` |
+| Handler            | Backend(s)           | Actions                                             | Source                  |
+| ------------------ | -------------------- | --------------------------------------------------- | ----------------------- |
+| `StorageHandler`   | S3Backend            | put_object, get_object, list_objects, delete_object | `handlers/storage.py`   |
+| `QueryHandler`     | DuckDBBackend        | execute_sql                                         | `handlers/query.py`     |
+| `TransformHandler` | DbtBackend           | run, build, test, seed                              | `handlers/transform.py` |
+| `TableHandler`     | DuckDBTableBackend   | create, insert, query                               | `handlers/table.py`     |
+| `CatalogHandler`   | InMemory, FileBacked | register, get, list, search                         | `handlers/catalog.py`   |
+| `RegistryHandler`  | InMemory, PostgreSQL | create_job, update_job, add_step, query_lineage     | `handlers/registry.py`  |
 
 ## Handler Pattern
 

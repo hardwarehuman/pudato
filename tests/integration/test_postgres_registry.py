@@ -21,7 +21,6 @@ from pudato.backends.registry import (
 )
 from pudato.protocol import DataReference, ExecutionRecord
 
-
 # Skip all tests if PostgreSQL connection not available
 pytestmark = pytest.mark.skipif(
     not os.environ.get("REGISTRY_DATABASE_URL"),

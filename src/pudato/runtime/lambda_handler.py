@@ -198,10 +198,12 @@ def handle(event: dict[str, Any], context: Any = None) -> dict[str, Any]:  # noq
             # Process command
             result = handler.handle(command)
 
-            results.append({
-                "correlation_id": result.correlation_id,
-                "status": result.status,
-            })
+            results.append(
+                {
+                    "correlation_id": result.correlation_id,
+                    "status": result.status,
+                }
+            )
 
             # Publish result (failure here shouldn't discard handler result)
             try:

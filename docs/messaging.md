@@ -82,13 +82,13 @@ event = Event(
 
 ## SNS Topics
 
-| Topic | Purpose |
-|-------|---------|
-| `pudato-storage-commands` | Storage operations (S3) |
-| `pudato-query-commands` | Query operations (DuckDB/Athena) |
-| `pudato-transform-commands` | dbt transformations |
-| `pudato-results` | Handler responses |
-| `pudato-events` | Cross-service events |
+| Topic                       | Purpose                          |
+| --------------------------- | -------------------------------- |
+| `pudato-storage-commands`   | Storage operations (S3)          |
+| `pudato-query-commands`     | Query operations (DuckDB/Athena) |
+| `pudato-transform-commands` | dbt transformations              |
+| `pudato-results`            | Handler responses                |
+| `pudato-events`             | Cross-service events             |
 
 ## Publishing
 
@@ -138,6 +138,7 @@ python -m pudato.runtime.local_runner --handler storage
 The results consumer (`src/pudato/runtime/results_consumer.py`) subscribes to the results topic and persists lineage to the registry.
 
 **Flow:**
+
 ```
 Handler produces Result (with job_id, step_id, inputs, outputs, executions)
     ↓
@@ -151,6 +152,7 @@ Lineage queryable via get_lineage
 ```
 
 **Usage:**
+
 ```python
 from pudato.runtime.results_consumer import handle, process_result
 
@@ -163,6 +165,7 @@ outcome = process_result(result, registry_handler)
 ```
 
 **Local development:**
+
 ```bash
 # Run results consumer locally (polls SQS)
 python -c "from pudato.runtime.results_consumer import run_local; run_local()"

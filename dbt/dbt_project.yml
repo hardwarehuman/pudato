@@ -2,11 +2,11 @@
 # This is a minimal project for exploring dbt integration with Pudato.
 # In production, data logic would live in a separate repository.
 
-name: 'pudato_sample'
-version: '0.1.0'
+name: "pudato_sample"
+version: "0.1.0"
 config-version: 2
 
-profile: 'pudato'
+profile: "pudato"
 
 model-paths: ["models"]
 seed-paths: ["seeds"]

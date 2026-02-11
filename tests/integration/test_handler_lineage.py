@@ -165,9 +165,7 @@ class TestQueryHandlerLineage:
             Command(
                 type="query",
                 action="execute_script",
-                payload={
-                    "sql": "CREATE TABLE test_lineage (id INT); DROP TABLE test_lineage;"
-                },
+                payload={"sql": "CREATE TABLE test_lineage (id INT); DROP TABLE test_lineage;"},
             )
         )
 

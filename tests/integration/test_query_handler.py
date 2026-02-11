@@ -7,7 +7,6 @@ from pathlib import Path
 import pytest
 
 from pudato.handlers.query import QueryHandler, create_duckdb_handler
-from pudato.backends.query import DuckDBBackend
 from pudato.protocol import Command
 
 
@@ -183,9 +182,7 @@ class TestQueryHandlerWithDbtData:
             project_dir=dbt_project_dir,
             profiles_dir=dbt_project_dir,
         )
-        build_result = transform.handle(
-            Command(type="transform", action="build", payload={})
-        )
+        build_result = transform.handle(Command(type="transform", action="build", payload={}))
         assert build_result.status == "success"
 
         # Now query the output - need a new handler to see the data

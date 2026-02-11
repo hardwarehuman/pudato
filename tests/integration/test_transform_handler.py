@@ -142,7 +142,9 @@ class TestTransformHandler:
         assert result.status == "error"
         assert "Unsupported action" in result.errors[0]
 
-    def test_version_tracking_in_output(self, transform_handler: TransformHandler, dbt_project_dir: Path):
+    def test_version_tracking_in_output(
+        self, transform_handler: TransformHandler, dbt_project_dir: Path
+    ):
         """Test that version tracking vars are passed to dbt and appear in model output."""
         import duckdb
 

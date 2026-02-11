@@ -57,9 +57,7 @@ def test_queue(sqs_client):
 def subscribed_queue(sns_client, sqs_client, test_topic, test_queue):
     """Create an SQS queue subscribed to an SNS topic."""
     # Get queue ARN
-    queue_attrs = sqs_client.get_queue_attributes(
-        QueueUrl=test_queue, AttributeNames=["QueueArn"]
-    )
+    queue_attrs = sqs_client.get_queue_attributes(QueueUrl=test_queue, AttributeNames=["QueueArn"])
     queue_arn = queue_attrs["Attributes"]["QueueArn"]
 
     # Subscribe queue to topic

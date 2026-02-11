@@ -116,9 +116,7 @@ class TestLogicRepoBackend:
 
         # Add a new commit to the source repo
         (temp_git_repo / "models" / "new_model.sql").write_text("SELECT 2 as id\n")
-        subprocess.run(
-            ["git", "add", "."], cwd=temp_git_repo, check=True, capture_output=True
-        )
+        subprocess.run(["git", "add", "."], cwd=temp_git_repo, check=True, capture_output=True)
         subprocess.run(
             ["git", "commit", "-m", "Add new model"],
             cwd=temp_git_repo,
@@ -145,9 +143,7 @@ class TestLogicRepoBackend:
 
         # Add a second commit
         (temp_git_repo / "models" / "v2.sql").write_text("SELECT 2\n")
-        subprocess.run(
-            ["git", "add", "."], cwd=temp_git_repo, check=True, capture_output=True
-        )
+        subprocess.run(["git", "add", "."], cwd=temp_git_repo, check=True, capture_output=True)
         subprocess.run(
             ["git", "commit", "-m", "Second commit"],
             cwd=temp_git_repo,

@@ -96,6 +96,7 @@ class LocalRunner:
 
         # Set handler type for lambda_handler
         import os
+
         os.environ["HANDLER_TYPE"] = self._handler_type
 
         # Invoke handler
@@ -112,9 +113,7 @@ class LocalRunner:
 
 def main() -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Local runner for Pudato handlers"
-    )
+    parser = argparse.ArgumentParser(description="Local runner for Pudato handlers")
     parser.add_argument(
         "--handler",
         required=True,
