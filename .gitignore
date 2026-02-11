@@ -31,6 +31,9 @@ wheels/
 venv/
 ENV/
 
+# OS
+.DS_Store
+
 # IDE
 .idea/
 .vscode/
@@ -71,3 +74,6 @@ dbt/.user.yml
 
 # ruff
 .ruff_cache/
+
+# uv (pending decision on adoption — see task #6)
+uv.lock
