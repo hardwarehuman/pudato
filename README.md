@@ -1,5 +1,7 @@
 # Pudato - Public Data Operations Platform
 
+[![CI](https://github.com/DeirdreHolub/pudato/actions/workflows/ci.yml/badge.svg)](https://github.com/DeirdreHolub/pudato/actions/workflows/ci.yml)
+
 A modular, open-source platform for data operations with public sector data. Built with service abstractions enabling local development with AWS mocks and production deployment flexibility.
 
 The organizing intention is to create a platform optimized for the sort of analyst-led data engineering crucial to acheiving speed, flexibility, and maintainability when working with the sort of [incorrigible data common in public-sector contexts](https://adhoc.team/2022/07/12/gaining-reliable-insights-with-incorrigible-data/). A key design principle is the separation of _platform infrastructure_ from _data logic_: dbt models and SQL transforms live in a configurable external repository that data analysts iterate at their own operational cadence, independent of platform or other infrastructure deployments. Though the MVP targets AWS services, the modular nature provides easy adaptability to almost any existing cloud-based infrastructure.
