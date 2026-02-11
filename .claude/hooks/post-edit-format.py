@@ -3,7 +3,7 @@
 # dependencies = []
 # ///
 
-"""Post-edit hook to auto-format Python files after Claude edits."""
+"""Post-edit hook to auto-format files after Claude edits."""
 
 import json
 import os
@@ -29,6 +29,18 @@ def format_python(file_path: str, cwd: str) -> None:
         pass
 
 
+def format_prettier(file_path: str, cwd: str) -> None:
+    """Format files with prettier."""
+    try:
+        subprocess.run(
+            ["npx", "prettier", "--write", file_path],
+            cwd=cwd,
+            capture_output=True,
+        )
+    except FileNotFoundError:
+        pass
+
+
 def main() -> None:
     input_data = json.load(sys.stdin)
 
@@ -47,6 +59,8 @@ def main() -> None:
 
     if ext in (".py", ".pyi"):
         format_python(file_path, cwd)
+    elif ext in (".json5", ".yaml", ".yml", ".md"):
+        format_prettier(file_path, cwd)
 
 
 if __name__ == "__main__":
