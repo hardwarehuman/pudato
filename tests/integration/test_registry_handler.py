@@ -6,7 +6,7 @@ import os
 import pytest
 
 from pudato.handlers.registry import RegistryHandler, create_memory_registry_handler
-from pudato.protocol import Command, DataReference, ExecutionRecord
+from pudato.protocol import Command
 
 
 @pytest.fixture
@@ -165,11 +165,13 @@ class TestRegistryHandlerJobs:
     def test_query_jobs(self, registry_handler: RegistryHandler):
         """Test querying jobs by criteria."""
         # Create multiple jobs
-        for i, (pipeline, env) in enumerate([
-            ("pipeline_a", "dev"),
-            ("pipeline_a", "prod"),
-            ("pipeline_b", "dev"),
-        ]):
+        for i, (pipeline, env) in enumerate(
+            [
+                ("pipeline_a", "dev"),
+                ("pipeline_a", "prod"),
+                ("pipeline_b", "dev"),
+            ]
+        ):
             registry_handler.handle(
                 Command(
                     type="registry",

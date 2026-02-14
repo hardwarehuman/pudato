@@ -9,14 +9,14 @@ Pudato is a modular platform for public sector data operations. Uses AWS service
 
 ## Which Doc to Read
 
-| Task | Read |
-|------|------|
+| Task                                                 | Read                   |
+|------------------------------------------------------|------------------------|
 | Understanding architecture, design decisions, phases | `docs/architecture.md` |
-| Working on handlers or backends | `docs/handlers.md` |
-| Working on messaging, SNS/SQS, message protocol | `docs/messaging.md` |
-| Working on registry, lineage, Job/Step persistence | `docs/schema.md` |
-| Working on Terraform infrastructure | `terraform/README.md` |
-| Resuming from previous session | `SESSION.md` |
+| Working on handlers or backends                      | `docs/handlers.md`     |
+| Working on messaging, SNS/SQS, message protocol      | `docs/messaging.md`    |
+| Working on registry, lineage, Job/Step persistence   | `docs/schema.md`       |
+| Working on Terraform infrastructure                  | `terraform/README.md`  |
+| Resuming from previous session                       | `SESSION.md`           |
 
 ## Quick Reference
 
@@ -51,6 +51,7 @@ pytest tests/integration -v -m integration
 ```
 
 **AWS CLI**: Use project-scoped credentials:
+
 ```bash
 AWS_CONFIG_FILE=.aws/config AWS_SHARED_CREDENTIALS_FILE=.aws/credentials aws ...
 ```
@@ -66,6 +67,7 @@ AWS_CONFIG_FILE=.aws/config AWS_SHARED_CREDENTIALS_FILE=.aws/credentials aws ...
 At the **start of every session**, read `SESSION.md` for context from the previous session.
 
 **Staleness detection protocol:**
+
 1. After reading SESSION.md, check for `<!-- SESSION_READ -->` marker at top
 2. If marker is **present**: the file is **stale** — warn the user that the previous session didn't update it, and context may be outdated
 3. If marker is **absent**: file is fresh from the previous session's update
@@ -73,19 +75,24 @@ At the **start of every session**, read `SESSION.md` for context from the previo
 5. At **end of session**, write new SESSION.md **without** the marker
 
 **SESSION.md format** (end of session):
+
 ```markdown
 # Session Notes — YYYY-MM-DD
 
 ## What We Did Today
+
 - Bullet points of completed work
 
 ## Current Test Status
+
 - Test counts
 
 ## To Resume Development
+
 - Commands to restore working state
 
 ## Next Steps
+
 - What to work on next
 ```
 

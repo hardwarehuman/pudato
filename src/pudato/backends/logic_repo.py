@@ -84,14 +84,16 @@ class LogicRepoBackend:
         """Clone the repo and checkout the target version."""
         self._log.info("cloning_repo", branch=self._config.branch)
 
-        result = self._run_git([
-            "clone",
-            "--branch",
-            self._config.branch,
-            "--single-branch",
-            self._config.repo_url,
-            str(clone_dir),
-        ])
+        result = self._run_git(
+            [
+                "clone",
+                "--branch",
+                self._config.branch,
+                "--single-branch",
+                self._config.repo_url,
+                str(clone_dir),
+            ]
+        )
 
         if not result.success:
             return result
@@ -278,8 +280,6 @@ def resolve_logic_dir(
     result = backend.sync()
 
     if not result.success:
-        raise RuntimeError(
-            f"Failed to sync logic repo {repo_url}: {result.error}"
-        )
+        raise RuntimeError(f"Failed to sync logic repo {repo_url}: {result.error}")
 
     return (result.project_dir, result.commit_hash)

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -111,7 +111,7 @@ class InMemoryCatalogBackend:
 
     def register(self, asset: DataAsset) -> None:
         """Register or update a data asset."""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
 
         if asset.name in self._assets:
             asset.updated_at = now
@@ -232,7 +232,7 @@ class FileCatalogBackend:
         self._path.parent.mkdir(parents=True, exist_ok=True)
         data = {
             "assets": {name: asdict(asset) for name, asset in self._assets.items()},
-            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(UTC).isoformat(),
         }
         with open(self._path, "w") as f:
             json.dump(data, f, indent=2)
@@ -240,7 +240,7 @@ class FileCatalogBackend:
 
     def register(self, asset: DataAsset) -> None:
         """Register or update a data asset."""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
 
         if asset.name in self._assets:
             asset.updated_at = now

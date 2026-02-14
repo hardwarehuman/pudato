@@ -2,7 +2,7 @@
 
 import pytest
 
-from pudato.backends.registry import InMemoryRegistryBackend, Job, JobStep
+from pudato.backends.registry import InMemoryRegistryBackend
 from pudato.handlers.registry import RegistryHandler
 from pudato.protocol import Command, DataReference, ExecutionRecord, Result
 from pudato.runtime.results_consumer import handle, process_result
@@ -205,7 +205,10 @@ class TestHandleLambdaEvent:
     """Tests for the Lambda handler entry point."""
 
     def test_handle_processes_sqs_event(
-        self, registry: RegistryHandler, job_with_step: tuple[str, str], monkeypatch: pytest.MonkeyPatch
+        self,
+        registry: RegistryHandler,
+        job_with_step: tuple[str, str],
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Lambda handler should process SQS events with Results."""
         job_id, step_id = job_with_step
@@ -248,7 +251,10 @@ class TestHandleLambdaEvent:
         assert len(step_result.data["outputs"]) == 1
 
     def test_handle_processes_sns_wrapped_event(
-        self, registry: RegistryHandler, job_with_step: tuple[str, str], monkeypatch: pytest.MonkeyPatch
+        self,
+        registry: RegistryHandler,
+        job_with_step: tuple[str, str],
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Lambda handler should handle SNS-wrapped messages."""
         job_id, step_id = job_with_step

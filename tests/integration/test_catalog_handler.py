@@ -2,7 +2,6 @@
 
 import json
 import os
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -152,9 +151,7 @@ class TestCatalogHandler:
             {"name": "stg_orders", "asset_type": "model"},
             {"name": "dim_customers", "asset_type": "model"},
         ]:
-            catalog_handler.handle(
-                Command(type="catalog", action="register", payload=asset)
-            )
+            catalog_handler.handle(Command(type="catalog", action="register", payload=asset))
 
         command = Command(
             type="catalog",
@@ -177,9 +174,7 @@ class TestCatalogHandler:
             {"name": "dim_customers", "asset_type": "model", "tags": ["dimension", "customers"]},
             {"name": "fact_revenue", "asset_type": "model", "tags": ["fact", "revenue"]},
         ]:
-            catalog_handler.handle(
-                Command(type="catalog", action="register", payload=asset)
-            )
+            catalog_handler.handle(Command(type="catalog", action="register", payload=asset))
 
         command = Command(
             type="catalog",
@@ -199,9 +194,7 @@ class TestCatalogHandler:
             {"name": "raw_products", "asset_type": "table", "description": "Product catalog"},
             {"name": "stg_orders", "asset_type": "model", "description": "Staged orders"},
         ]:
-            catalog_handler.handle(
-                Command(type="catalog", action="register", payload=asset)
-            )
+            catalog_handler.handle(Command(type="catalog", action="register", payload=asset))
 
         command = Command(
             type="catalog",
@@ -301,9 +294,7 @@ class TestCatalogHandler:
             {"name": "stg_a", "asset_type": "model", "tags": ["staging"]},
             {"name": "fact_a", "asset_type": "model", "tags": ["mart", "fact"]},
         ]:
-            catalog_handler.handle(
-                Command(type="catalog", action="register", payload=asset)
-            )
+            catalog_handler.handle(Command(type="catalog", action="register", payload=asset))
 
         command = Command(
             type="catalog",

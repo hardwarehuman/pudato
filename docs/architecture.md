@@ -7,6 +7,7 @@ A modular, open-source platform for data operations with public sector data. Bui
 ## Key Objectives
 
 ### 1. Separate Infrastructure from Data Logic
+
 The platform enables data analysts to manage data operations with minimal help from data engineers, while treating data logic as a proper codebase with engineering controls.
 
 - **Infrastructure repo** (this one): Pudato platform code, handlers, Terraform, managed by engineers
@@ -15,6 +16,7 @@ The platform enables data analysts to manage data operations with minimal help f
 - Standard PR/code review workflow: analyst submits transform change → peer review → merge to main = production
 
 ### 2. Version-Tracked Reproducibility
+
 Every flow execution must be traceable to the exact data logic version used.
 
 - Track commit hash (or equivalent) for each flow execution
@@ -23,6 +25,7 @@ Every flow execution must be traceable to the exact data logic version used.
 - Supports both: analyst testing/development AND automated production flows
 
 ### 3. Discover Airflow/dbt Responsibilities
+
 Airflow and dbt have overlapping capabilities (DAGs, dependencies, scheduling). Part of development is exploring the right division of labor.
 
 - **dbt strengths**: SQL-first, data models, built-in testing, git integration, lineage
@@ -34,15 +37,19 @@ Airflow and dbt have overlapping capabilities (DAGs, dependencies, scheduling). 
 ## Core Assumptions
 
 ### 1. Cloud Service Portability
+
 Every major cloud has equivalent services (SNS/SQS ↔ Azure Service Bus ↔ GCP Pub/Sub, Lambda ↔ Azure Functions, etc.). As long as we don't lean too heavily into provider-specific details, we can swap one service for its counterpart transparently via Terraform configuration.
 
 ### 2. Don't Reimplement Cloud Services
+
 Designing and maintaining even minimal versions of messaging, storage, or compute services would be a significant effort. We use robust existing cloud services, not build inferior versions. LocalStack provides the local development story.
 
 ### 3. dbt and Airflow Are Core Platform Components
+
 These define the platform's paradigm (declarative SQL transforms, DAG orchestration), not just swappable backends. Modularization means giving them a place to run (ECS/ACI/K8s), not planning for alternatives. dbt is invoked via subprocess (`dbt run`) for vendor neutrality.
 
 ### 4. MVP First, Expand Via Real Use Cases
+
 The initial goal is a complete end-to-end ELT orchestration system using Airflow and dbt on AWS, working in batch DAGs to a target data model. Streaming, unstructured data, MLOps, and multi-cloud support come later, driven by real-world use cases where Pudato provides majority capability and we add what's missing.
 
 ---
@@ -89,6 +96,7 @@ The platform uses **SNS/SQS as the native message bus** (LocalStack locally, rea
 ### 2. Lambda as Service Translator
 
 Each Lambda knows how to:
+
 1. **Receive** standardized messages from SNS/SQS
 2. **Translate** messages into service-specific commands (e.g., Redshift SQL API)
 3. **Execute** against its configured backend service
@@ -155,19 +163,20 @@ class StorageHandler(Handler):
 
 Expected services that the platform provides:
 
-| Service | Commands | Responsibility |
-|---------|----------|----------------|
-| `storage` | put_object, get_object, list, delete | Object/file storage |
-| `table` | create, insert, query, compact | Iceberg table operations |
-| `query` | execute_sql, execute_async | Ad-hoc SQL queries |
-| `transform` | run_model, test_model | dbt transformations |
-| `catalog` | register, discover, lineage | Metadata management |
-| `orchestrate` | trigger_dag, get_status | Airflow DAG control |
-| `notify` | publish, subscribe | Event notifications |
+| Service       | Commands                             | Responsibility           |
+| ------------- | ------------------------------------ | ------------------------ |
+| `storage`     | put_object, get_object, list, delete | Object/file storage      |
+| `table`       | create, insert, query, compact       | Iceberg table operations |
+| `query`       | execute_sql, execute_async           | Ad-hoc SQL queries       |
+| `transform`   | run_model, test_model                | dbt transformations      |
+| `catalog`     | register, discover, lineage          | Metadata management      |
+| `orchestrate` | trigger_dag, get_status              | Airflow DAG control      |
+| `notify`      | publish, subscribe                   | Event notifications      |
 
 ### 6. Configuration-Driven Backend Selection (Terraform)
 
 Environment determines which backend implements each handler:
+
 - `PUDATO_ENV=local` → LocalStack, DuckDB, local filesystem
 - `PUDATO_ENV=aws` → S3, Athena, Lambda, real AWS services
 - Future: `PUDATO_ENV=azure`, `PUDATO_ENV=gcp`
@@ -217,16 +226,16 @@ pudato/
 
 ## Component Stack
 
-| Layer | Component | Purpose |
-|-------|-----------|---------|
-| **Orchestration** | Apache Airflow | DAG scheduling, workflow management |
-| **Transformations** | dbt-core | SQL transformations, lineage, docs |
-| **Table Format** | Apache Iceberg | ACID transactions, time travel, schema evolution |
-| **Storage** | S3 (LocalStack) | Data lake object storage |
-| **Database** | DynamoDB (LocalStack) | Metadata, state management |
-| **Messaging** | SQS/SNS (LocalStack) | Async processing, notifications |
-| **Query Engine** | DuckDB (local) / Athena (AWS) | SQL queries over Iceberg tables |
-| **Catalog** | dbt docs + Iceberg catalog | Schema registry, lineage |
+| Layer               | Component                     | Purpose                                          |
+| ------------------- | ----------------------------- | ------------------------------------------------ |
+| **Orchestration**   | Apache Airflow                | DAG scheduling, workflow management              |
+| **Transformations** | dbt-core                      | SQL transformations, lineage, docs               |
+| **Table Format**    | Apache Iceberg                | ACID transactions, time travel, schema evolution |
+| **Storage**         | S3 (LocalStack)               | Data lake object storage                         |
+| **Database**        | DynamoDB (LocalStack)         | Metadata, state management                       |
+| **Messaging**       | SQS/SNS (LocalStack)          | Async processing, notifications                  |
+| **Query Engine**    | DuckDB (local) / Athena (AWS) | SQL queries over Iceberg tables                  |
+| **Catalog**         | dbt docs + Iceberg catalog    | Schema registry, lineage                         |
 
 ---
 
@@ -266,6 +275,7 @@ pudato/
 ### Phase 4: Data Logic Repo & Lineage Wiring (IN PROGRESS)
 
 **Completed:**
+
 - [x] Table handler with DuckDB backend (`src/pudato/handlers/table.py`, `src/pudato/backends/table.py`)
 - [x] Catalog handler with file-backed + in-memory backends (`src/pudato/handlers/catalog.py`, `src/pudato/backends/catalog.py`)
 - [x] Registry handler with PostgreSQL + in-memory backends (`src/pudato/handlers/registry.py`, `src/pudato/backends/registry.py`)
@@ -279,6 +289,7 @@ pudato/
 - [x] End-to-end lineage tests (143 tests passing)
 
 **Remaining:**
+
 - [ ] Terraform: Results SQS queue subscribed to results SNS topic
 - [ ] dbt manifest parsing for actual table-level I/O tracking
 
@@ -294,6 +305,7 @@ pudato/
 ### Phase 6+: To Be Defined
 
 Potential future areas:
+
 - Multi-cloud support (Azure, GCP)
 - Streaming data
 - Unstructured data handling
