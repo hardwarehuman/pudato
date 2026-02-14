@@ -48,7 +48,9 @@ class TestTransformHandler:
         # Seeds produce outputs (the seed tables)
         assert len(result.outputs) >= 1
         output_locations = [o.location for o in result.outputs]
-        assert any("raw_departments" in loc or "raw_expenditures" in loc for loc in output_locations)
+        assert any(
+            "raw_departments" in loc or "raw_expenditures" in loc for loc in output_locations
+        )
 
     def test_run(self, transform_handler: TransformHandler):
         """Test running dbt models."""
