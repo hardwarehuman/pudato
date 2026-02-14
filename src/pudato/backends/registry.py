@@ -363,15 +363,17 @@ class InMemoryRegistryBackend:
                     job = self._jobs.get(step.job_id)
                     if environment and job and job.environment != environment:
                         continue
-                    results.append({
-                        "job_id": step.job_id,
-                        "step_id": step.step_id,
-                        "step_name": step.step_name,
-                        "handler_type": step.handler_type,
-                        "logic_version": job.logic_version if job else None,
-                        "completed_at": step.completed_at,
-                        "executions": [e.model_dump() for e in step.executions],
-                    })
+                    results.append(
+                        {
+                            "job_id": step.job_id,
+                            "step_id": step.step_id,
+                            "step_name": step.step_name,
+                            "handler_type": step.handler_type,
+                            "logic_version": job.logic_version if job else None,
+                            "completed_at": step.completed_at,
+                            "executions": [e.model_dump() for e in step.executions],
+                        }
+                    )
 
         # Sort by completed_at descending
         results.sort(key=lambda r: r.get("completed_at") or "", reverse=True)
@@ -391,14 +393,16 @@ class InMemoryRegistryBackend:
                     job = self._jobs.get(step.job_id)
                     if environment and job and job.environment != environment:
                         continue
-                    results.append({
-                        "job_id": step.job_id,
-                        "step_id": step.step_id,
-                        "step_name": step.step_name,
-                        "handler_type": step.handler_type,
-                        "logic_version": job.logic_version if job else None,
-                        "started_at": step.started_at,
-                    })
+                    results.append(
+                        {
+                            "job_id": step.job_id,
+                            "step_id": step.step_id,
+                            "step_name": step.step_name,
+                            "handler_type": step.handler_type,
+                            "logic_version": job.logic_version if job else None,
+                            "started_at": step.started_at,
+                        }
+                    )
 
         results.sort(key=lambda r: r.get("started_at") or "", reverse=True)
         return results
@@ -460,7 +464,7 @@ class PostgreSQLRegistryBackend:
     Requires psycopg 3.x.
     """
 
-    def __init__(self, conn: "Connection[Any]") -> None:
+    def __init__(self, conn: Connection[Any]) -> None:
         """Initialize with a psycopg connection.
 
         Args:
@@ -539,8 +543,12 @@ class PostgreSQLRegistryBackend:
             parameters=row[7] if isinstance(row[7], dict) else json.loads(row[7] or "{}"),
             dag_run_id=row[8],
             created_at=row[9].isoformat() if hasattr(row[9], "isoformat") else row[9],
-            started_at=row[10].isoformat() if row[10] and hasattr(row[10], "isoformat") else row[10],
-            completed_at=row[11].isoformat() if row[11] and hasattr(row[11], "isoformat") else row[11],
+            started_at=row[10].isoformat()
+            if row[10] and hasattr(row[10], "isoformat")
+            else row[10],
+            completed_at=row[11].isoformat()
+            if row[11] and hasattr(row[11], "isoformat")
+            else row[11],
             error=row[12],
             metadata=row[13] if isinstance(row[13], dict) else json.loads(row[13] or "{}"),
         )
@@ -650,8 +658,12 @@ class PostgreSQLRegistryBackend:
                 parameters=row[7] if isinstance(row[7], dict) else json.loads(row[7] or "{}"),
                 dag_run_id=row[8],
                 created_at=row[9].isoformat() if hasattr(row[9], "isoformat") else row[9],
-                started_at=row[10].isoformat() if row[10] and hasattr(row[10], "isoformat") else row[10],
-                completed_at=row[11].isoformat() if row[11] and hasattr(row[11], "isoformat") else row[11],
+                started_at=row[10].isoformat()
+                if row[10] and hasattr(row[10], "isoformat")
+                else row[10],
+                completed_at=row[11].isoformat()
+                if row[11] and hasattr(row[11], "isoformat")
+                else row[11],
                 error=row[12],
                 metadata=row[13] if isinstance(row[13], dict) else json.loads(row[13] or "{}"),
             )
@@ -827,7 +839,9 @@ class PostgreSQLRegistryBackend:
                 "step_name": row[2],
                 "handler_type": row[3],
                 "logic_version": row[4],
-                "completed_at": row[5].isoformat() if row[5] and hasattr(row[5], "isoformat") else row[5],
+                "completed_at": row[5].isoformat()
+                if row[5] and hasattr(row[5], "isoformat")
+                else row[5],
                 "executions": row[6] if isinstance(row[6], list) else json.loads(row[6] or "[]"),
             }
             for row in rows
@@ -867,7 +881,9 @@ class PostgreSQLRegistryBackend:
                 "step_name": row[2],
                 "handler_type": row[3],
                 "logic_version": row[4],
-                "started_at": row[5].isoformat() if row[5] and hasattr(row[5], "isoformat") else row[5],
+                "started_at": row[5].isoformat()
+                if row[5] and hasattr(row[5], "isoformat")
+                else row[5],
             }
             for row in rows
         ]
@@ -889,8 +905,12 @@ class PostgreSQLRegistryBackend:
             inputs=[DataReference(**i) for i in inputs_raw],
             outputs=[DataReference(**o) for o in outputs_raw],
             executions=[ExecutionRecord(**e) for e in executions_raw],
-            started_at=row[10].isoformat() if row[10] and hasattr(row[10], "isoformat") else row[10],
-            completed_at=row[11].isoformat() if row[11] and hasattr(row[11], "isoformat") else row[11],
+            started_at=row[10].isoformat()
+            if row[10] and hasattr(row[10], "isoformat")
+            else row[10],
+            completed_at=row[11].isoformat()
+            if row[11] and hasattr(row[11], "isoformat")
+            else row[11],
             duration_ms=row[12] or 0,
             error=row[13],
             metadata=row[14] if isinstance(row[14], dict) else json.loads(row[14] or "{}"),

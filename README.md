@@ -1,8 +1,10 @@
 # Pudato - Public Data Operations Platform
 
+[![CI](https://github.com/DeirdreHolub/pudato/actions/workflows/ci.yml/badge.svg)](https://github.com/DeirdreHolub/pudato/actions/workflows/ci.yml)
+
 A modular, open-source platform for data operations with public sector data. Built with service abstractions enabling local development with AWS mocks and production deployment flexibility.
 
-The organizing intention is to create a platform optimized for the sort of analyst-led data engineering crucial to acheiving speed, flexibility, and maintainability when working with the sort of [incorrigible data common in public-sector contexts](https://adhoc.team/2022/07/12/gaining-reliable-insights-with-incorrigible-data/). A key design principle is the separation of *platform infrastructure* from *data logic*: dbt models and SQL transforms live in a configurable external repository that data analysts iterate at their own operational cadence, independent of platform or other infrastructure deployments. Though the MVP targets AWS services, the modular nature provides easy adaptability to almost any existing cloud-based infrastructure.
+The organizing intention is to create a platform optimized for the sort of analyst-led data engineering crucial to acheiving speed, flexibility, and maintainability when working with the sort of [incorrigible data common in public-sector contexts](https://adhoc.team/2022/07/12/gaining-reliable-insights-with-incorrigible-data/). A key design principle is the separation of _platform infrastructure_ from _data logic_: dbt models and SQL transforms live in a configurable external repository that data analysts iterate at their own operational cadence, independent of platform or other infrastructure deployments. Though the MVP targets AWS services, the modular nature provides easy adaptability to almost any existing cloud-based infrastructure.
 
 ## Project Status
 
@@ -10,21 +12,21 @@ The organizing intention is to create a platform optimized for the sort of analy
 
 ### What's Built
 
-| Component | Status | Description |
-|-----------|--------|-------------|
-| Message Protocol | ✅ | `Command`, `Result`, `Event` with lineage support |
-| SNS/SQS Messaging | ✅ | Publisher, Consumer utilities via boto3 |
-| Storage Handler | ✅ | S3 backend for object storage |
-| Query Handler | ✅ | DuckDB backend for SQL queries |
-| Transform Handler | ✅ | dbt backend with version tracking |
-| Table Handler | ✅ | DuckDB backend for table operations |
-| Catalog Handler | ✅ | In-memory + file-backed metadata |
-| Registry Handler | ✅ | PostgreSQL backend for job/lineage tracking |
-| Lambda Runtime | ✅ | Entry point + local runner |
-| LocalStack Setup | ✅ | Docker Compose with SNS, SQS, S3, PostgreSQL |
-| Terraform (local) | ✅ | Topics, queues, subscriptions |
-| Results Consumer | ✅ | Persists lineage from Results to registry |
-| Integration Tests | ✅ | 143 passing tests |
+| Component         | Status | Description                                       |
+| ----------------- | ------ | ------------------------------------------------- |
+| Message Protocol  | ✅     | `Command`, `Result`, `Event` with lineage support |
+| SNS/SQS Messaging | ✅     | Publisher, Consumer utilities via boto3           |
+| Storage Handler   | ✅     | S3 backend for object storage                     |
+| Query Handler     | ✅     | DuckDB backend for SQL queries                    |
+| Transform Handler | ✅     | dbt backend with version tracking                 |
+| Table Handler     | ✅     | DuckDB backend for table operations               |
+| Catalog Handler   | ✅     | In-memory + file-backed metadata                  |
+| Registry Handler  | ✅     | PostgreSQL backend for job/lineage tracking       |
+| Lambda Runtime    | ✅     | Entry point + local runner                        |
+| LocalStack Setup  | ✅     | Docker Compose with SNS, SQS, S3, PostgreSQL      |
+| Terraform (local) | ✅     | Topics, queues, subscriptions                     |
+| Results Consumer  | ✅     | Persists lineage from Results to registry         |
+| Integration Tests | ✅     | 143 passing tests                                 |
 
 ### What's Next (Phase 4 Remaining)
 
@@ -55,6 +57,7 @@ The organizing intention is to create a platform optimized for the sort of analy
 ```
 
 Each handler is a "translator" that:
+
 1. Receives standardized messages from SNS/SQS
 2. Translates to service-specific commands
 3. Returns status to results topic
@@ -181,17 +184,17 @@ event = Event(
 
 ## Technology Stack
 
-| Layer | Component | Purpose |
-|-------|-----------|---------|
-| **Language** | Python 3.11-3.13 | Platform code |
-| **Messaging** | SNS/SQS (LocalStack) | Event-driven architecture |
-| **Storage** | S3 (LocalStack) | Data lake |
-| **Query Engine** | DuckDB (local) / Athena (AWS) | SQL queries |
-| **Transformations** | dbt-core | SQL transforms, lineage |
-| **Logic Repo** | Git (external repo) | Fetch/sync external data logic, version tracking |
-| **Registry** | PostgreSQL | Job/step tracking, lineage |
-| **Orchestration** | Apache Airflow | DAG scheduling (Phase 5) |
-| **IaC** | Terraform | Infrastructure management |
+| Layer               | Component                     | Purpose                                          |
+| ------------------- | ----------------------------- | ------------------------------------------------ |
+| **Language**        | Python 3.11-3.13              | Platform code                                    |
+| **Messaging**       | SNS/SQS (LocalStack)          | Event-driven architecture                        |
+| **Storage**         | S3 (LocalStack)               | Data lake                                        |
+| **Query Engine**    | DuckDB (local) / Athena (AWS) | SQL queries                                      |
+| **Transformations** | dbt-core                      | SQL transforms, lineage                          |
+| **Logic Repo**      | Git (external repo)           | Fetch/sync external data logic, version tracking |
+| **Registry**        | PostgreSQL                    | Job/step tracking, lineage                       |
+| **Orchestration**   | Apache Airflow                | DAG scheduling (Phase 5)                         |
+| **IaC**             | Terraform                     | Infrastructure management                        |
 
 ## Development
 
@@ -217,6 +220,7 @@ mypy src
 - [Terraform](terraform/README.md) - Infrastructure setup
 
 ## Pronunciation
+
 pu-day-to, pu-dah-to, it's all the same.
 
 ## License

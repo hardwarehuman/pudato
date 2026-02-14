@@ -64,9 +64,7 @@ class TestEndToEndFlow:
 
         transform_result = transform_handler.handle(transform_command)
 
-        assert transform_result.status == "success", (
-            f"Transform failed: {transform_result.errors}"
-        )
+        assert transform_result.status == "success", f"Transform failed: {transform_result.errors}"
         assert transform_result.data["logic_version"] == logic_version
         assert transform_result.data["execution_id"] == execution_id
 
@@ -96,9 +94,7 @@ class TestEndToEndFlow:
 
         query_result = query_handler.handle(query_command)
 
-        assert query_result.status == "success", (
-            f"Query failed: {query_result.errors}"
-        )
+        assert query_result.status == "success", f"Query failed: {query_result.errors}"
 
         # Verify data structure
         data = query_result.data
@@ -128,9 +124,7 @@ class TestEndToEndFlow:
         )
 
         # First seed, then run specific staging model
-        transform_handler.handle(
-            Command(type="transform", action="seed", payload={})
-        )
+        transform_handler.handle(Command(type="transform", action="seed", payload={}))
 
         run_result = transform_handler.handle(
             Command(
@@ -167,9 +161,7 @@ class TestEndToEndFlow:
             project_dir=dbt_project_dir,
             profiles_dir=dbt_project_dir,
         )
-        transform_handler.handle(
-            Command(type="transform", action="build", payload={})
-        )
+        transform_handler.handle(Command(type="transform", action="build", payload={}))
 
         query_handler = create_duckdb_handler(
             database_path=dbt_project_dir / "pudato.duckdb",
@@ -469,9 +461,7 @@ class TestLineageTrackingFlow:
             project_dir=dbt_project_dir,
             profiles_dir=dbt_project_dir,
         )
-        transform_handler.handle(
-            Command(type="transform", action="build", payload={})
-        )
+        transform_handler.handle(Command(type="transform", action="build", payload={}))
 
         # Create job and step
         job_result = registry.handle(
@@ -652,7 +642,7 @@ class TestLineageTrackingFlow:
             profiles_dir=dbt_project_dir,
         )
 
-        for i, step_id in enumerate(step_ids):
+        for i, step_id in enumerate(step_ids):  # noqa: B007
             # Use seed for simplicity - just need valid results
             result = transform_handler.handle(
                 Command(

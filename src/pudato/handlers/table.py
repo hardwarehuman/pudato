@@ -315,8 +315,7 @@ class TableHandler(BaseHandler):
                 data={
                     "table": name,
                     "snapshots": [
-                        {"snapshot_id": s.snapshot_id, "timestamp": s.timestamp}
-                        for s in snapshots
+                        {"snapshot_id": s.snapshot_id, "timestamp": s.timestamp} for s in snapshots
                     ],
                 },
             )

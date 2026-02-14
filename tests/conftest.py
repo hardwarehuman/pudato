@@ -6,7 +6,7 @@ import boto3
 import pytest
 
 
-def pytest_configure(config):
+def pytest_configure(config):  # noqa: ARG001
     """Set environment variables before test collection."""
     os.environ.setdefault("PUDATO_ENV", "local")
     os.environ.setdefault("LOCALSTACK_ENDPOINT", "http://localhost:4566")

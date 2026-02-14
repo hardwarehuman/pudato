@@ -116,7 +116,7 @@ class DuckDBBackend:
 
         conn = self._get_connection()
         try:
-            if parameters:
+            if parameters:  # noqa: SIM108
                 # DuckDB uses $name for named parameters
                 result = conn.execute(sql, parameters)
             else:

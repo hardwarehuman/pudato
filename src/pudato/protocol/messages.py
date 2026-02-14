@@ -15,9 +15,7 @@ class DataReference(BaseModel):
     Used to track inputs and outputs for lineage.
     """
 
-    ref_type: str = Field(
-        description="Type of reference: table, file, stream, model, api, etc."
-    )
+    ref_type: str = Field(description="Type of reference: table, file, stream, model, api, etc.")
     location: str = Field(
         description="Location identifier: 'main.stg_departments', 's3://bucket/path', 'kafka://topic'"
     )

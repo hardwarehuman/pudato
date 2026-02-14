@@ -3,8 +3,8 @@ services:
     image: localstack/localstack:3.0
     container_name: pudato-localstack
     ports:
-      - "4566:4566"            # LocalStack Gateway
-      - "4510-4559:4510-4559"  # External services port range
+      - "4566:4566" # LocalStack Gateway
+      - "4510-4559:4510-4559" # External services port range
     environment:
       - DEBUG=1
       - SERVICES=s3,sqs,sns,lambda,dynamodb,events
@@ -31,7 +31,7 @@ services:
       POSTGRES_PASSWORD: pudato
       POSTGRES_DB: pudato
     ports:
-      - "5433:5432"  # Use 5433 to avoid conflicts with host postgres
+      - "5433:5432" # Use 5433 to avoid conflicts with host postgres
     volumes:
       - "./data/postgres:/var/lib/postgresql/data"
     healthcheck:
@@ -42,7 +42,7 @@ services:
     networks:
       - pudato-network
     profiles:
-      - airflow  # Start with --profile airflow
+      - airflow # Start with --profile airflow
       - postgres # Start with --profile postgres (for registry testing)
 
 networks:

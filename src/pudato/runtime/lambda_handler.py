@@ -144,7 +144,7 @@ def _create_registry_handler() -> Any:
     else:
         from pudato.backends.registry import InMemoryRegistryBackend
 
-        backend = InMemoryRegistryBackend()
+        backend = InMemoryRegistryBackend()  # type: ignore[assignment]
 
     return RegistryHandler(backend=backend)
 
@@ -198,10 +198,12 @@ def handle(event: dict[str, Any], context: Any = None) -> dict[str, Any]:  # noq
             # Process command
             result = handler.handle(command)
 
-            results.append({
-                "correlation_id": result.correlation_id,
-                "status": result.status,
-            })
+            results.append(
+                {
+                    "correlation_id": result.correlation_id,
+                    "status": result.status,
+                }
+            )
 
             # Publish result (failure here shouldn't discard handler result)
             try:

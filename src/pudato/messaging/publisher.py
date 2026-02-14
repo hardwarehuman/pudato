@@ -52,7 +52,7 @@ class Publisher:
                 "correlation_id": {"DataType": "String", "StringValue": command.correlation_id},
             },
         )
-        return response
+        return response  # type: ignore[return-value]
 
     def publish_result(self, topic_arn: str, result: Result) -> dict[str, Any]:
         """Publish a result to the results topic.
@@ -72,7 +72,7 @@ class Publisher:
                 "correlation_id": {"DataType": "String", "StringValue": result.correlation_id},
             },
         )
-        return response
+        return response  # type: ignore[return-value]
 
     def publish_event(self, topic_arn: str, event: Event) -> dict[str, Any]:
         """Publish an event to the events topic.
@@ -92,4 +92,4 @@ class Publisher:
                 "correlation_id": {"DataType": "String", "StringValue": event.correlation_id},
             },
         )
-        return response
+        return response  # type: ignore[return-value]

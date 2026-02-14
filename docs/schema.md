@@ -80,20 +80,20 @@ The `inputs`, `outputs`, and `executions` columns store arrays of structured obj
 
 ### pudato_jobs
 
-| Index | Column |
-|-------|--------|
-| `idx_jobs_pipeline` | `pipeline` |
+| Index                  | Column        |
+| ---------------------- | ------------- |
+| `idx_jobs_pipeline`    | `pipeline`    |
 | `idx_jobs_environment` | `environment` |
-| `idx_jobs_namespace` | `namespace` |
-| `idx_jobs_status` | `status` |
-| `idx_jobs_created_at` | `created_at` |
+| `idx_jobs_namespace`   | `namespace`   |
+| `idx_jobs_status`      | `status`      |
+| `idx_jobs_created_at`  | `created_at`  |
 
 ### pudato_job_steps
 
-| Index | Column |
-|-------|--------|
-| `idx_steps_job_id` | `job_id` |
-| `idx_steps_status` | `status` |
+| Index                  | Column       |
+| ---------------------- | ------------ |
+| `idx_steps_job_id`     | `job_id`     |
+| `idx_steps_status`     | `status`     |
 | `idx_steps_started_at` | `started_at` |
 
 ## Foreign Key
